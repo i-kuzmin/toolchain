@@ -1,7 +1,7 @@
 TOOLCHAIN := /home/iku/src/java/toolchain
 BUILD := /home/iku/src/java/build
 
-CHECKSTYLE := java -jar $(TOOLCHAIN)/checkstyle/checkstyle-6.1.1-all.jar
+CHECKSTYLE_TOOL := java -jar $(TOOLCHAIN)/checkstyle/checkstyle-6.1.1-all.jar
 
 FINDBUGS_TOOL := $(TOOLCHAIN)/findbugs-3.0.1/bin/findbugs
 __findbug_config =-include $(TOOLCHAIN)/findbugs.xml
@@ -18,19 +18,26 @@ __findbug_dir = $(BUILD)/findbugs
 
 SOURCES.java  = $(filter %.java, $(SOURCES))
 CLASSES       = $(SOURCES.java:%.java=$(__classes_dir)/%.class)
+TAGS.src   += $(SOURCES.java)
 
 STYLECHK = $(SOURCES.java:%.java=$(__styles_dir)/%.style)
 
 FINDBUGCHK = $(SOURCES.java:%.java=$(__findbug_dir)/%.bugs)
 
-#ifneq ($(LIBS),)
+ifneq ($(CLASSPATH),)
 #__noop=
 #__space = $(noop) $(noop)
-#__class_path = -cp "$(subst $(__space),:,$(LIBS)):$(__classes_dir)"
-#endif
+__class_path = -cp "$(__classes_dir):$(CLASSPATH)"
+endif
 
 .PHONY: clean all run
-__all = $(CLASSES) $(STYLECHK) .tags
+
+__all = $(CLASSES) .tags
+
+ifneq ($(CHECKSTYLE), NO)
+	__all += $(STYLECHK)
+endif
+
 ifneq ($(FINDBUGS), NO)
 	__all += $(FINDBUGCHK)
 endif
@@ -39,11 +46,11 @@ all: $(__all)
 
 $(__classes_dir)/%.class: %.java |$(__classes_dir)
 	@echo "#   compile $(<:.java=.class)"
-	@javac -d $(__classes_dir) $<
+	@javac $(__class_path) -d $(__classes_dir) $<
 
 $(__styles_dir)/%.style:  %.java |$(__styles_dir)
 	@echo "#   check style: $<"
-	@$(CHECKSTYLE) $(__coursera_checks) $<
+	@$(CHECKSTYLE_TOOL) $(__coursera_checks) $<
 	@touch $@
 
 $(__findbug_dir)/%.bugs: $(__classes_dir)/%.class |$(__findbug_dir)
@@ -51,7 +58,7 @@ $(__findbug_dir)/%.bugs: $(__classes_dir)/%.class |$(__findbug_dir)
 	@$(FINDBUGS_TOOL) $(__findbug_config) $<
 	@touch $@
 
-.tags: $(SOURCES.java)
+.tags: $(TAGS.src)
 	@echo "#   generate tags"
 	@ctags --language-force=java -f.tags $^ 
 
@@ -60,5 +67,5 @@ $(__classes_dir) $(__styles_dir) $(__findbug_dir):
 	@echo "#   mkdir $@"
 
 clean:
-	@rm -rf $(BUILD) .tags
+	@rm -rf $(CLASSES) $(STYLECHK) $(FINDBUGCHK) .tags
 	@echo "#   cleaned"
