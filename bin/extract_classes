@@ -1,0 +1,16 @@
+#!/bin/perl
+foreach $file (@ARGV) {
+
+    open( $input, "<$file");
+    my $package = '.';
+    while( <$input>) {
+        if (/^\s*package\s+([a-zA-Z0-9_.-]+);/) {
+            $package = "$1";
+            $package =~ s:\.:/:g;
+        } elsif (/^\s*package/) { die $_; }
+        if ( /class\s+([a-zA-Z_0-9]+)/) {
+            print "$package/$1 ";
+        }
+    }
+    close( $input);
+}
