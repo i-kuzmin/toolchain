@@ -1,16 +1,22 @@
 #!/bin/perl
 foreach $file (@ARGV) {
-
     open( $input, "<$file");
     my $package = '.';
+    my @classes;
     while( <$input>) {
         if (/^\s*package\s+([a-zA-Z0-9_.-]+);/) {
             $package = "$1";
             $package =~ s:\.:/:g;
         } elsif (/^\s*package/) { die $_; }
-        if ( /class\s+([a-zA-Z_0-9]+)/) {
-            print "$package/$1 ";
+        if ( /^\s*(final |protected |private |public |virtual )*\s*class\s+([a-zA-Z_0-9]+)/) {
+            push @classes, "\$(__classes_dir)/$package/$2.class";
         }
     }
+    if (scalar @classes) {
+        print "java.classes += " . join(' ', @classes) . "\n";
+        printf "%s: $file\n", join(' ', @classes);
+    }
     close( $input);
+
 }
+exit 0;

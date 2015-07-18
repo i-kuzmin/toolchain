@@ -1,0 +1,7 @@
+__clean += .tags
+
+all: .tags
+
+.tags: $(tags.src)
+	@echo "#   generate tags"
+	@ctags -f.tags $^ 

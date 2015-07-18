@@ -1,0 +1,43 @@
+##STYLECHK = $(SOURCES.java:%.java=$(__styles_dir)/%.style)
+#
+#
+##CHECKSTYLE_TOOL := java -jar $(TOOLCHAIN)/checkstyle/checkstyle-6.1.1-all.jar
+##
+##FINDBUGS_TOOL := $(TOOLCHAIN)/findbugs-3.0.1/bin/findbugs
+##__findbug_config =-include $(TOOLCHAIN)/findbugs.xml
+##
+##__google_checks=-c $(TOOLCHAIN)/checkstyle/google_checks.xml
+##__sun_checks=-c $(TOOLCHAIN)/checkstyle/sun_checks.xml
+##__coursera_checks=-c $(TOOLCHAIN)/checkstyle/checkstyle.xml
+##
+##
+##__styles_dir  = $(BUILD)/styles
+##__findbug_dir = $(BUILD)/findbugs
+##
+##
+##
+##STYLECHK = $(SOURCES.java:%.java=$(__styles_dir)/%.style)
+##
+##FINDBUGCHK = $(SOURCES.java:%.java=$(__findbug_dir)/%.bugs)
+##
+##
+##ifneq ($(CHECKSTYLE), NO)
+##	__all += $(STYLECHK)
+##endif
+##
+##ifneq ($(FINDBUGS), NO)
+##	__all += $(FINDBUGCHK)
+##endif
+##
+
+##$(__styles_dir)/%.style:  %.java |$(__styles_dir)
+##	@echo "#   check style: $<"
+##	@$(CHECKSTYLE_TOOL) $(__coursera_checks) $<
+##	@touch $@
+##
+##$(__findbug_dir)/%.bugs: $(__classes_dir)/%.class |$(__findbug_dir)
+##	@echo "#   check bugs: $^"
+##	@$(FINDBUGS_TOOL) $(__findbug_config) $<
+##	@touch $@
+##
+
