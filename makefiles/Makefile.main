@@ -1,9 +1,7 @@
 #!/bin/make
-THIS_MAKEFILE = $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-
 .DEFAULT_GOAL = all
 
-TOOLCHAIN := $(realpath $(dir $(THIS_MAKEFILE))../)
+TOOLCHAIN := $(realpath $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))/../)
 
 ifeq ($(BUILD),)
   BUILD := build
@@ -15,6 +13,7 @@ endif
 
 ECHO = echo
 MKDIR = mkdir
+TOUCH = touch
 
 __tmp = $(BUILD)/tmp$(CURDIR)
 
@@ -26,12 +25,17 @@ __dirs += $(SOURCES.tmp)
 include $(TOOLCHAIN)/makefiles/drivers/Makefile.java
 include $(TOOLCHAIN)/makefiles/drivers/Makefile.tags
 
-.PHONY: all clean
+.PHONY: all clean deepclean
+
+all: $(__all)
 
 $(__dirs):
-	@$(ECHO) "#   mkdir $@"
 	@$(MKDIR) -p $@
 
 clean:
-	@echo "#   remove: $(__clean)"
-	@rm -rfd $(__clean)
+	@$(ECHO) "remove $(__clean)"
+	@rm -rf $(__clean)
+
+deepclean:
+	@$(ECHO) "remove $(BUILD)"
+	@rm -rf $(BUILD)

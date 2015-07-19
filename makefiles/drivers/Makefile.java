@@ -19,13 +19,18 @@ ifneq ($(CLASSPATH),)
 __class_path = -cp "$(__classes_dir):$(CLASSPATH)"
 endif
 
-all: $(java.classes)
-
-$(java.classes): $(java.src) |$(java.dep) $(__classes_dir)
-	@$(ECHO) "#   compile $?"
-	@$(java.CC) $(__class_path) -d $(__classes_dir) $?
-
 $(__tmp)/%/depend: % |$(java.tmp)
-	@$(ECHO) "#   dependancies for $<"
 	@$(java.DEP) $< >$@
 
+.PHONY: java.compile
+all: java.compile
+
+java.compile: $(java.targets) |$(__classes_dir)
+	@if [ ! -z "$(java.targets)" ]; then \
+		$(ECHO) "#   compile $(sort $(java.targets))"; \
+		$(java.CC) $(__class_path) -d $(__classes_dir) $(sort $(java.targets)); \
+	fi
+
+#$(java.classes): $(java.src) |$(__classes_dir)
+#	@$(ECHO) "#   compile $?"
+#	@$(java.CC) $(__class_path) -d $(__classes_dir) $?

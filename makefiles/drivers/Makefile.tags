@@ -1,6 +1,6 @@
 __clean += .tags
 
-all: .tags
+__all += .tags
 
 .tags: $(tags.src)
 	@echo "#   generate tags"

@@ -1,20 +1,27 @@
 #!/bin/perl
 foreach $file (@ARGV) {
     open( $input, "<$file");
-    my $package = '.';
+    my $package = '';
     my @classes;
     while( <$input>) {
         if (/^\s*package\s+([a-zA-Z0-9_.-]+);/) {
-            $package = "$1";
+            $package = "$1.";
             $package =~ s:\.:/:g;
         } elsif (/^\s*package/) { die $_; }
         if ( /^\s*(final |protected |private |public |virtual )*\s*class\s+([a-zA-Z_0-9]+)/) {
-            push @classes, "\$(__classes_dir)/$package/$2.class";
+            push @classes, "$2";
         }
     }
     if (scalar @classes) {
-        print "java.classes += " . join(' ', @classes) . "\n";
-        printf "%s: $file\n", join(' ', @classes);
+        my $shortClasses = join( ' ', map { "$_.class" } @classes);
+        my $classes = join(' ', map {"\$(__classes_dir)/$package$_.class"} @classes);
+        #print ".PHONY: " .  $shortClasses . "\n";
+        print "java.classes += $classes\n";
+
+        print "all: $classes\n";
+        #print "$shortClasses: $classes\n";
+        print "$classes: $file\n";
+        print "\t\$(eval java.targets +=  \$?)\n";
     }
     close( $input);
 
