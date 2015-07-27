@@ -7,9 +7,8 @@ java.src := $(filter %.java, $(SOURCES))
 java.tmp := $(filter %.java, $(SOURCES.tmp))
 java.dep := $(java.tmp:%=%/depend)
 
-#__all += $(java.classes)
 __dirs += $(__classes_dir)
-__clean += $(java.tmp) $(java.classes)
+__clean += $(java.tmp) $(java.classes:%='%')
 
 tags.src += $(java.src)
 
@@ -30,7 +29,3 @@ java.compile: $(java.targets) |$(__classes_dir)
 		$(ECHO) "#   compile $(sort $(java.targets))"; \
 		$(java.CC) $(__class_path) -d $(__classes_dir) $(sort $(java.targets)); \
 	fi
-
-#$(java.classes): $(java.src) |$(__classes_dir)
-#	@$(ECHO) "#   compile $?"
-#	@$(java.CC) $(__class_path) -d $(__classes_dir) $?

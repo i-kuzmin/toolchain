@@ -17,7 +17,7 @@ TOUCH = touch
 
 __tmp = $(BUILD)/tmp$(CURDIR)
 
-SOURCES.tmp := $(SOURCES:%=$(__tmp)/%)
+SOURCES.tmp := $(SOURCES:./%=$(__tmp)/%)
 
 __dirs += $(SOURCES.tmp)
 
@@ -33,9 +33,11 @@ $(__dirs):
 	@$(MKDIR) -p $@
 
 clean:
-	@$(ECHO) "remove $(__clean)"
-	@rm -rf $(__clean)
+	rm -rf $(__clean)
+	@find $(BUILD) -type d -empty -delete
 
 deepclean:
 	@$(ECHO) "remove $(BUILD)"
 	@rm -rf $(BUILD)
+
+# $(MAKECMDGOALS)

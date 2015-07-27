@@ -1,25 +1,20 @@
 #!/bin/perl
 foreach $file (@ARGV) {
-    open( $input, "<$file");
+    open( $input, "ctags -n -f- $file|") or die "Can't extract tags from '$file'";
     my $package = '';
     my @classes;
     while( <$input>) {
-        if (/^\s*package\s+([a-zA-Z0-9_.-]+);/) {
-            $package = "$1.";
-            $package =~ s:\.:/:g;
-        } elsif (/^\s*package/) { die $_; }
-        if ( /^\s*(final |protected |private |public |virtual )*\s*class\s+([a-zA-Z_0-9]+)/) {
-            push @classes, "$2";
-        }
+        chop; my ($name, $tmp, $tmp, $type, $param ) = split /\t/;
+        $param =~ s/class:(.+)$/\1./;
+        $package = "$name."            if $type eq "p";
+        push (@classes, "$param$name") if $type eq "c";
     }
+    $package =~ s:\.:/:g;
+    @classes = map { s/\./\$\$/g; "$_"} @classes;
     if (scalar @classes) {
-        my $shortClasses = join( ' ', map { "$_.class" } @classes);
         my $classes = join(' ', map {"\$(__classes_dir)/$package$_.class"} @classes);
-        #print ".PHONY: " .  $shortClasses . "\n";
         print "java.classes += $classes\n";
-
         print "all: $classes\n";
-        #print "$shortClasses: $classes\n";
         print "$classes: $file\n";
         print "\t\$(eval java.targets +=  \$?)\n";
     }
