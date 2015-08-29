@@ -1,0 +1,7 @@
+CLASSPATH := ./target/dependency/
+
+all: target/dependency
+
+target/dependency:
+	@echo "mvn: get dependencies"
+	@mvn -nsu dependency:unpack-dependencies generate-sources

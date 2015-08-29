@@ -6,6 +6,7 @@ java.CC := javac
 java.src := $(filter %.java, $(SOURCES))
 java.tmp := $(filter %.java, $(SOURCES.tmp))
 java.dep := $(java.tmp:%=%/depend)
+java.target_list := $(__tmp)/classes
 
 __dirs += $(__classes_dir)
 __clean += $(java.tmp) $(java.classes:%='%')
@@ -26,6 +27,8 @@ all: java.compile
 
 java.compile: $(java.targets) |$(__classes_dir)
 	@if [ ! -z "$(java.targets)" ]; then \
-		$(ECHO) "#   compile $(sort $(java.targets))"; \
-		$(java.CC) $(__class_path) -d $(__classes_dir) $(sort $(java.targets)); \
+		$(file >$(java.target_list),$(sort $(java.targets))) \
+		$(file >$(__tmp)/srcs, $(java.src)) \
+		$(ECHO) "#   compile $(notdir $(sort $(java.targets)))"; \
+		$(java.CC) $(__class_path) -d $(__classes_dir) @$(java.target_list); \
 	fi

@@ -7,7 +7,7 @@ foreach $file (@ARGV) {
         chop; my ($name, $tmp, $tmp, $type, $param ) = split /\t/;
         $param =~ s/class:(.+)$/\1./;
         $package = "$name."            if $type eq "p";
-        push (@classes, "$param$name") if $type eq "c";
+        push (@classes, "$param$name") if $type =~ '^(c|i|g)$';
     }
     $package =~ s:\.:/:g;
     @classes = map { s/\./\$\$/g; "$_"} @classes;

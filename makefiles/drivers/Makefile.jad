@@ -1,0 +1,11 @@
+ifeq ($(JAD),)
+    JAD := .
+endif
+
+jad.classes = $(shell find $(JAD) -name '*.class')
+jad.jad = $(jad.classes:%.class=%.jad)
+
+%.jad:%.class
+	$jad $<
+
+.jad.tags: 

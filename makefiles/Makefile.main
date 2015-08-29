@@ -4,26 +4,36 @@
 TOOLCHAIN := $(realpath $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))/../)
 
 ifeq ($(BUILD),)
-  BUILD := build
+  BUILD := target
 endif
 
 ifeq ($(SOURCES),)
-  SOURCES := $(shell find . -name '*.java' -type f)
+  SOURCES := $(shell find . -name '*.java' -type f -not -path './target/dependency/*')
 endif
+
+# TODO: move such things to maven plugin
+ifeq ($(CLASSPATH),)
+  CLASSPATH := target/classes
+endif
+
 
 ECHO = echo
 MKDIR = mkdir
 TOUCH = touch
 
-__tmp = $(BUILD)/tmp$(CURDIR)
+__tmp = $(BUILD)/tmp
 
 SOURCES.tmp := $(SOURCES:./%=$(__tmp)/%)
 
 __dirs += $(SOURCES.tmp)
 
 
+ifneq ("$(wildcard pom.xml)","")
+	include $(TOOLCHAIN)/makefiles/drivers/Makefile.mvn
+endif
 include $(TOOLCHAIN)/makefiles/drivers/Makefile.java
 include $(TOOLCHAIN)/makefiles/drivers/Makefile.tags
+
 
 .PHONY: all clean deepclean
 

@@ -4,4 +4,4 @@ __all += .tags
 
 .tags: $(tags.src)
 	@echo "#   generate tags"
-	@ctags --extra=q --fields=+Sa -f.tags $^
+	@ctags --extra=q --fields=+Sa -f$@ $^
