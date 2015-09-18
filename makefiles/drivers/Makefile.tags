@@ -1,7 +1,11 @@
-__clean += .tags
+.PHONY: tags.clean
 
-__all += .tags
+all: .tags
+clean: tags.clean
+
+tags.clean: .tags
+	$(RM) $^
 
 .tags: $(tags.src)
-	@echo "#   generate tags"
+	@$(ECHO) "#   generate tags"
 	@ctags --extra=q --fields=+Sa -f$@ $^

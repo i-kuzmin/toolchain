@@ -1,34 +1,29 @@
-__classes_dir = $(BUILD)/classes
-
-java.DEP = $(TOOLCHAIN)/bin/extract_classes
-java.CC := javac
+ifeq ($(CLASSES),)
+	CLASSES := $(BUILD)/classes
+endif
 
 java.src := $(filter %.java, $(SOURCES))
-java.tmp := $(filter %.java, $(SOURCES.tmp))
-java.dep := $(java.tmp:%=%/depend)
-java.target_list := $(__tmp)/classes
 
-__dirs += $(__classes_dir)
-__clean += $(java.tmp) $(java.classes:%='%')
+source_list := $(BUILD)/java.last.compiled
 
 tags.src += $(java.src)
 
--include $(java.dep)
+CLASS_PATH := $(call mk_join,:,$(CLASSES) $(CLASS_PATH))
 
-ifneq ($(CLASSPATH),)
-__class_path = -cp "$(__classes_dir):$(CLASSPATH)"
-endif
+.PHONY: java.clean
 
-$(__tmp)/%/depend: % |$(java.tmp)
-	@$(java.DEP) $< >$@
+all: $(CLASSES)
+clean: java.clean
 
-.PHONY: java.compile
-all: java.compile
+$(source_list): $(SOURCES)
+	$(file >$@,$?)
 
-java.compile: $(java.targets) |$(__classes_dir)
-	@if [ ! -z "$(java.targets)" ]; then \
-		$(file >$(java.target_list),$(sort $(java.targets))) \
-		$(file >$(__tmp)/srcs, $(java.src)) \
-		$(ECHO) "#   compile $(notdir $(sort $(java.targets)))"; \
-		$(java.CC) $(__class_path) -d $(__classes_dir) @$(java.target_list); \
-	fi
+$(CLASSES): $(source_list) 
+	@$(MKDIR) -p $@
+	@javac -cp "$(CLASS_PATH)" -d $@ @$<
+	@$(ECHO) "#   java compiled" $(shell tr " " "\n" < $< | wc -l) "files"
+	@$(TOUCH) $@
+
+java.clean: $(source_list)
+	$(RM) $^
+

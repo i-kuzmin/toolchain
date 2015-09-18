@@ -11,43 +11,33 @@ ifeq ($(SOURCES),)
   SOURCES := $(shell find . -name '*.java' -type f -not -path './target/dependency/*')
 endif
 
-# TODO: move such things to maven plugin
 ifeq ($(CLASSPATH),)
   CLASSPATH := target/classes
 endif
 
+ECHO  := echo
+MKDIR := mkdir
+TOUCH := touch
+RM    := rm
 
-ECHO = echo
-MKDIR = mkdir
-TOUCH = touch
+.SUFFIXES:
+.PHONY: all clean deepclean main.clean main.deepclean
 
-__tmp = $(BUILD)/tmp
+clean: main.clean
+deepclean: main.deepclean
 
-SOURCES.tmp := $(SOURCES:./%=$(__tmp)/%)
-
-__dirs += $(SOURCES.tmp)
-
-
+include $(TOOLCHAIN)/makefiles/util/Makefile.halpers
 ifneq ("$(wildcard pom.xml)","")
 	include $(TOOLCHAIN)/makefiles/drivers/Makefile.mvn
 endif
 include $(TOOLCHAIN)/makefiles/drivers/Makefile.java
 include $(TOOLCHAIN)/makefiles/drivers/Makefile.tags
 
-
-.PHONY: all clean deepclean
-
-all: $(__all)
-
-$(__dirs):
-	@$(MKDIR) -p $@
-
-clean:
-	rm -rf $(__clean)
+main.clean:
 	@find $(BUILD) -type d -empty -delete
 
-deepclean:
+main.deepclean:
 	@$(ECHO) "remove $(BUILD)"
-	@rm -rf $(BUILD)
+	@$(RM) -rf $(BUILD)
 
 # $(MAKECMDGOALS)

@@ -1,7 +1,12 @@
-CLASSPATH := ./target/dependency/
+CLASS_PATH += target/dependency/
+
+.PHONY: mvn.deepclean
 
 all: target/dependency
+deepclean: mvn.deepclean
 
 target/dependency:
-	@echo "mvn: get dependencies"
-	@mvn -nsu dependency:unpack-dependencies generate-sources
+	mvn -nsu clean compile dependency:unpack-dependencies generate-sources
+
+mnv.deepclean: target/dependency
+	$(RM) $^

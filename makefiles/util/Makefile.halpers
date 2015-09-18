@@ -1,0 +1,11 @@
+ifeq ($(origin __make_helpers__),undefined)
+__make_helpers__ = 1
+
+# JOIN list
+mk_comma:= ,
+mk_empty:=
+mk_space:= $(mk_empty) $(mk_empty)
+
+mk_join = $(subst $(mk_space),$(1), $(strip $(2)))
+
+endif
